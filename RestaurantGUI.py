@@ -2,13 +2,15 @@ import tkinter as tk
 from tkinter import messagebox
 
 # import required class
-from Restaurant import restaurant
+from Restaurant import Restaurant
 from Database import Database
 
 # GUI
 class RestaurantGUI:
     def __init__(self, master):
         self.master = master
+        self.database = Database('restaurant.db')
+
         master.title("Restaurant Management System")
 
         self.label = tk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
@@ -32,7 +34,7 @@ class RestaurantGUI:
         self.add_payment_button = tk.Button(master, text="Add Payment", command=self.add_payment)
         self.add_payment_button.pack()
 
-        self.menu_items = Database.get_menu_items()
+        self.menu_items = self.database.get_menu_items()
 
         self.menu_item_label = tk.Label(master, text="Menu Items:")
         self.menu_item_label.pack()
@@ -45,11 +47,14 @@ class RestaurantGUI:
 
         for item in self.menu_items:
             tk.Label(master, text=item[1] + " - $" + str(item[2])).pack()
+    
+    def run(self):
+        self.master.mainloop()
 
     def create_order(self):
         table_number = Database.assign_table()
         if table_number:
-            order = restaurant.create_order(table_number, "Dine-in")
+            order = Restaurant.create_order(table_number, "Dine-in")
             messagebox.showinfo("Order Created", f"Order created for Table {table_number}")
         else:
             messagebox.showwarning("No Available Tables", "No available tables at the moment.")
@@ -91,7 +96,7 @@ class RestaurantGUI:
             messagebox.showinfo("No Reservations", "There are no reservations.")
 
     def submit_reservation(self, window, table_number, reservation_time, party_size):
-        Database.create_reservation(int(table_number), reservation_time, int(party_size))
+        Database.create_reservation(table_number, reservation_time, party_size)
         messagebox.showinfo("Reservation Created", "Reservation created successfully!")
         window.destroy()
 

@@ -8,10 +8,10 @@ from Database import Database
 from RestaurantGUI import RestaurantGUI
 
 def main():
-    restaurant = Restaurant()
+    root = tk.Tk()
     database = Database('restaurant.db')
-    gui = RestaurantGUI(tk.tk())
-    gui.run
+    gui = RestaurantGUI(root)
+    gui.run()
 
 if __name__ == "__main__":
     main()
