@@ -1,6 +1,7 @@
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
+import ttkbootstrap as ttk
 
 # Database Initialization
 conn = sqlite3.connect('restaurant.db')
@@ -117,40 +118,91 @@ class RestaurantApp:
         self.master = master
         master.title("Restaurant Management System")
 
-        self.label = tk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
-        self.label.pack()
+        self.label = ttk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
+        self.label.grid(row=0, column=0, columnspan=3) #6 x 4
 
-        self.table_frame = tk.Frame(master)
-        self.table_frame.pack()
+        #self.table_frame = tk.Frame(master)
+        #self.table_frame.pack()
 
-        self.create_order_button = tk.Button(master, text="Create Order", command=self.create_order)
-        self.create_order_button.pack()
+        self.create_order_button = ttk.Button(master, text="Create Order", command=self.open_create_order_window)
+        self.create_order_button.grid(row=1, column=0)
 
-        self.create_reservation_button = tk.Button(master, text="Create Reservation", command=self.create_reservation)
-        self.create_reservation_button.pack()
+        self.view_order_button = ttk.Button(master, text="View Order", command=self.open_view_order_window)
+        self.view_order_button.grid(row=2, column=0)
 
-        self.add_item_button = tk.Button(master, text="Add Menu Item", command=self.add_menu_item)
-        self.add_item_button.pack()
-
-        self.add_user_button = tk.Button(master, text="Add User", command=self.add_user)
-        self.add_user_button.pack()
-
-        self.add_payment_button = tk.Button(master, text="Add Payment", command=self.add_payment)
-        self.add_payment_button.pack()
+        self.create_reservation_button = ttk.Button(master, text="Create Reservation", command=self.create_reservation)
+        self.create_reservation_button.grid(row=6, column=3)
 
         self.menu_items = restaurant.get_menu_items()
 
-        self.menu_item_label = tk.Label(master, text="Menu Items:")
-        self.menu_item_label.pack()
+        self.update_reservations()
 
-        self.reservation_frame = tk.Frame(master)
-        self.reservation_frame.pack()
+    def update_reservations(self):
+        self.reservations_list = tk.Listbox(self.master)
+        self.reservations_list.grid(row=1, column=3, rowspan=5)
 
-        self.view_reservations_button = tk.Button(master, text="View Reservations", command=self.view_reservations)
-        self.view_reservations_button.pack()
+        self.reservation_scrollbar = tk.Scrollbar(self.master)
+        reservations = restaurant.get_reservations()
+
+        for r in reservations:
+            self.reservations_list.insert("end", r)
+
+        self.reservations_list.config(yscrollcommand = self.reservation_scrollbar.set) 
+
+    def open_create_order_window(self):
+        create_order_window = tk.Toplevel(self.master)
+        create_order_window.title("Create Order")
+        create_order_window.geometry("400x400")
+
+        selected_items = []
 
         for item in self.menu_items:
-            tk.Label(master, text=item[1] + " - $" + str(item[2])).pack()
+            Btn = ttk.Button(create_order_window, text=item[1], command=lambda: self.add_item_to_order(create_order_window, item[1]))
+            Btn.pack(pady=10)
+
+        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(selected_items, create_order_window))
+        submit_button.pack()
+
+    def submit_order(self, selected_items, window):
+        selected_items = [item[1] for item in selected_items if item[0].get()]
+        if selected_items:
+            # Assuming table number and order type are selected elsewhere
+            table_number = 1  # Example table number
+            order_type = "Dine-in"  # Example order type
+            order = restaurant.create_order(table_number, order_type)
+            for item in selected_items:
+                order.add_item(MenuItem(item[1], item[2], item[3]))
+            messagebox.showinfo("Order Created", f"Order created for Table {table_number}")
+            window.destroy()
+        else:
+            messagebox.showwarning("No Items Selected", "Please select at least one item.")
+
+    def open_view_order_window(self):
+        view_order_window = tk.Toplevel(self.master)
+        view_order_window.title("View Orders")
+
+        orders = restaurant.orders
+        if orders:
+            for i, order in enumerate(orders, start=1):
+                ttk.Button(view_order_window, text=f"Order {i}", command=lambda order=order: self.open_order_details_window(order)).pack()
+        else:
+            tk.Label(view_order_window, text="No orders available.").pack()
+
+    def open_order_details_window(self, order):
+        order_details_window = tk.Toplevel(self.master)
+        order_details_window.title("Order Details")
+
+        tk.Label(order_details_window, text=f"Table Number: {order.table_number}").pack()
+        tk.Label(order_details_window, text=f"Order Type: {order.order_type}").pack()
+        tk.Label(order_details_window, text="Items:").pack()
+        for item in order.items:
+            tk.Label(order_details_window, text=f"{item.name} - ${item.price}").pack()
+        ttk.Button(order_details_window, text="Pay", command=lambda: self.pay_order(order)).pack()
+
+    def pay_order(self, order):
+        # Your payment logic here
+        messagebox.showinfo("Payment", "Payment for order successfully processed.")
+
 
     def create_order(self):
         table_number = restaurant.assign_table()
@@ -199,6 +251,7 @@ class RestaurantApp:
     def submit_reservation(self, window, table_number, reservation_time, party_size):
         restaurant.create_reservation(int(table_number), reservation_time, int(party_size))
         messagebox.showinfo("Reservation Created", "Reservation created successfully!")
+        self.update_reservations()
         window.destroy()
 
     def add_menu_item(self):
@@ -284,7 +337,7 @@ class RestaurantApp:
         window.destroy()
 
 def main():
-    root = tk.Tk()
+    root = ttk.window.Window(size=[640, 480])
     app = RestaurantApp(root)
     root.mainloop()
 
