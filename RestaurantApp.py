@@ -10,35 +10,59 @@ class RestaurantApp:
         master.title("Restaurant Management System")
 
         self.label = ttk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
-        self.label.grid(row=0, column=0, columnspan=3) #6 x 4
-
-        #self.table_frame = tk.Frame(master)
-        #self.table_frame.pack()
+        self.label.grid(row=0, column=0, columnspan=4, padx=(10, 10), pady=(10, 10))  # Adjust columnspan as needed
 
         self.create_order_button = ttk.Button(master, text="Create Order", command=self.open_create_order_window)
-        self.create_order_button.grid(row=1, column=0)
+        self.create_order_button.grid(row=1, column=0, padx=(10, 5), pady=(5, 5))
 
         self.view_order_button = ttk.Button(master, text="View Order", command=self.open_view_order_window)
-        self.view_order_button.grid(row=2, column=0)
+        self.view_order_button.grid(row=2, column=0, padx=(10, 5), pady=(5, 5))
 
         self.create_reservation_button = ttk.Button(master, text="Create Reservation", command=self.create_reservation)
-        self.create_reservation_button.grid(row=6, column=3)
+        self.create_reservation_button.grid(row=8, column=0, padx=(10, 5), pady=(5, 5))
 
         self.menu_items = self.restaurant.get_menu_items()
 
+        # Set up the Treeview for reservations
+        self.setup_reservation_treeview()
+
+        # Fetch and display the initial reservations
         self.update_reservations()
 
+    def setup_reservation_treeview(self):
+        # Create a Treeview widget
+        self.tree = ttk.Treeview(self.master, columns=("Reservation", "Table Number", "Reservation Time", "Party Size","Name"), show="headings")
+        self.tree.grid(row=1, column=1, rowspan=7, columnspan=5, padx=(20, 10), pady=(10, 10), sticky='nsew')
+
+        # Define the column headers
+        self.tree.heading("Reservation", text="Reservation")
+        self.tree.heading("Table Number", text="Table Number")
+        self.tree.heading("Reservation Time", text="Reservation Time")
+        self.tree.heading("Party Size", text="Party Size")
+        self.tree.heading("Name", text="Name")
+
+        # Define the column widths
+        self.tree.column("Reservation", width=100)
+        self.tree.column("Table Number", width=100)
+        self.tree.column("Reservation Time", width=150)
+        self.tree.column("Party Size", width=100)
+        self.tree.column("Name", width = 100)
+
+        # Add a scrollbar
+        self.scrollbar = ttk.Scrollbar(self.master, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscroll=self.scrollbar.set)
+        self.scrollbar.grid(row=1, column=8, rowspan=7, sticky='ns', pady=(10, 10))
+
     def update_reservations(self):
-        self.reservations_list = tk.Listbox(self.master)
-        self.reservations_list.grid(row=1, column=3, rowspan=5)
+        # Clear the current contents of the Treeview
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
-        self.reservation_scrollbar = tk.Scrollbar(self.master)
+        # Fetch and insert new reservations
         reservations = self.restaurant.get_reservations()
+        for reservation in reservations:
+            self.tree.insert("", "end", values=reservation)
 
-        for r in reservations:
-            self.reservations_list.insert("end", r)
-
-        self.reservations_list.config(yscrollcommand = self.reservation_scrollbar.set) 
 
     def open_create_order_window(self):
         create_order_window = tk.Toplevel(self.master)
@@ -106,26 +130,38 @@ class RestaurantApp:
     def create_reservation(self):
         reservation_window = tk.Toplevel(self.master)
         reservation_window.title("Create Reservation")
-
+        table_numbers = ["1", "2", "3", "4"]
+        reservation_time = ["12:00", "12:30", "13:00", "13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30""18:00","18:30""19:00","19:30","20:00",
+                            "20:30""21:00","21:30"]
+        party_size = ["1","2","3","4","5","6","7","8","9+"]
+        
         table_label = tk.Label(reservation_window, text="Table Number:")
         table_label.grid(row=0, column=0)
-        table_entry = tk.Entry(reservation_window)
+        table_entry = ttk.Combobox(reservation_window, values=table_numbers)
+        table_entry.current(0)
         table_entry.grid(row=0, column=1)
 
         time_label = tk.Label(reservation_window, text="Reservation Time:")
         time_label.grid(row=1, column=0)
-        time_entry = tk.Entry(reservation_window)
+        time_entry = ttk.Combobox(reservation_window,values=reservation_time)
+        table_entry.current(0)
         time_entry.grid(row=1, column=1)
 
         party_size_label = tk.Label(reservation_window, text="Party Size:")
         party_size_label.grid(row=2, column=0)
-        party_size_entry = tk.Entry(reservation_window)
+        party_size_entry = ttk.Combobox(reservation_window,values=party_size)
+        table_entry.current(0)
         party_size_entry.grid(row=2, column=1)
-
+        
+        party_name_label = tk.Label(reservation_window, text="Name")
+        party_name_label.grid(row=3, column=0)
+        party_name_entry = tk.Entry(reservation_window)
+        party_name_entry.grid(row=3, column=1)
+        
         submit_button = tk.Button(reservation_window, text="Submit",
                                   command=lambda: self.submit_reservation(reservation_window, table_entry.get(),
-                                                                          time_entry.get(), party_size_entry.get()))
-        submit_button.grid(row=3, columnspan=2)
+                                                                          time_entry.get(), party_size_entry.get(),party_name_entry.get()))
+        submit_button.grid(row=4, columnspan=2)
 
     def view_reservations(self):
         reservations = self.restaurant.get_reservations()
@@ -139,8 +175,8 @@ class RestaurantApp:
         else:
             tk.messagebox.showinfo("No Reservations", "There are no reservations.")
 
-    def submit_reservation(self, window, table_number, reservation_time, party_size):
-        self.restaurant.create_reservation(int(table_number), reservation_time, int(party_size))
+    def submit_reservation(self, window, table_number, reservation_time, party_size,name):
+        self.restaurant.create_reservation(int(table_number), reservation_time, int(party_size),name)
         tk.messagebox.showinfo("Reservation Created", "Reservation created successfully!")
         self.update_reservations()
         window.destroy()
@@ -163,7 +199,7 @@ class RestaurantApp:
         type_label.grid(row=2, column=0)
         type_entry = tk.Entry(add_item_window)
         type_entry.grid(row=2, column=1)
-
+    
         submit_button = tk.Button(add_item_window, text="Submit",
                                   command=lambda: self.submit_menu_item(add_item_window, name_entry.get(),
                                                                        price_entry.get(), type_entry.get()))

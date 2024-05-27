@@ -13,9 +13,9 @@ class Restaurant:
         self.orders.append(order)
         return order
 
-    def create_reservation(self, table_number, reservation_time, party_size):
-        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size) VALUES (?, ?, ?)",
-                       (table_number, reservation_time, party_size))
+    def create_reservation(self, table_number, reservation_time, party_size,name):
+        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size,name) VALUES (?, ?, ?,?)",
+                       (table_number, reservation_time, party_size,name))
         self.conn.commit()
         return "Reservation created successfully"
 
