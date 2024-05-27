@@ -33,9 +33,10 @@ c.execute('''CREATE TABLE IF NOT EXISTS Users
 c.execute('''CREATE TABLE IF NOT EXISTS Payments
              (id INTEGER PRIMARY KEY, order_id INTEGER, amount REAL, payment_method TEXT)''')
 
+
 if __name__ == "__main__":
     restaurant = Restaurant(c, conn)
-    root = ttk.window.Window(size=[640, 480])
+    root = ttk.window.Window(size=[800, 420])
     app = RestaurantApp(root, restaurant)
     root.mainloop()
 
