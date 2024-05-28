@@ -9,6 +9,7 @@ class RestaurantApp:
     def __init__(self, master, restaurant):
         self.master = master
         self.restaurant = restaurant
+        master.minsize(800, 400)
         master.title("Restaurant Management System")
 
         self.label = ttk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
