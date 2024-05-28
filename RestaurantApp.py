@@ -146,7 +146,7 @@ class RestaurantApp:
         tk.Label(order_details_window, text=f"Order Type: {order.order_type}").pack()
         tk.Label(order_details_window, text="Items:").pack()
         for item in order.items:
-            tk.Label(order_details_window, text=f"{item[1]} - ${item[2]}").pack()
+            tk.Label(order_details_window, text=f"{item[0][1]} - ${item[0][2]}").pack()
         ttk.Button(order_details_window, text="Pay", command=lambda: self.pay_order(order)).pack()
 
     def pay_order(self, order):
