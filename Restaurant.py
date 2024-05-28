@@ -1,6 +1,7 @@
 from MenuItem import MenuItem
 from Order import Order
 from Reservation import Reservation
+from User import User
 
 class Restaurant:
     def __init__(self, c, conn):
@@ -14,9 +15,9 @@ class Restaurant:
         self.orders.append(order)
         return order
 
-    def create_reservation(self, table_number, reservation_time, party_size):
-        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size) VALUES (?, ?, ?)",
-                       (table_number, reservation_time, party_size))
+    def create_reservation(self, table_number, reservation_time, party_size,name):
+        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size,name) VALUES (?, ?, ?,?)",
+                       (table_number, reservation_time, party_size,name))
         self.conn.commit()
         return "Reservation created successfully"
 
@@ -41,18 +42,14 @@ class Restaurant:
     def get_users(self):
         self.c.execute("SELECT * FROM Users")
         return self.c.fetchall()
+
+    def add_payment(self, order_id, amount, payment_method):
+        self.c.execute("INSERT INTO Payments (order_id, amount, payment_method) VALUES (?, ?, ?)",
+                  (order_id, amount, payment_method))
+        self.conn.commit()
     
     def get_reservations(self):
         self.c.execute("SELECT * FROM Reservations")
         reservations = self.c.fetchall()
         print("Reservations:", reservations)  # Add this line for debugging
         return reservations
-    
-    def add_payment(self, order_id, payment_method):
-        amount = self.get_order_cost(order_id)
-        self.c.execute("INSERT INTO Payments (order_id, amount, payment_method) VALUES (?, ?, ?)",
-                  (order_id, amount, payment_method))
-        self.conn.commit()
-    
-    def get_order_cost(self, order_id):
-        return self.orders[order_id].total
