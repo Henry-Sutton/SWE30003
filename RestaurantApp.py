@@ -172,20 +172,23 @@ class RestaurantApp:
         
         table_label = tk.Label(reservation_window, text="Table Number:")
         table_label.grid(row=0, column=0)
-        table_entry = ttk.Combobox(reservation_window, values=table_numbers)
-        table_entry.current(0)
+        table_number = tk.StringVar(reservation_window)
+        table_entry = tk.OptionMenu(reservation_window, table_number, *table_numbers)
+        #table_entry.current(0)
         table_entry.grid(row=0, column=1)
 
         time_label = tk.Label(reservation_window, text="Reservation Time:")
         time_label.grid(row=1, column=0)
-        time_entry = ttk.Combobox(reservation_window,values=reservation_time)
-        table_entry.current(0)
+        time_allocation = tk.StringVar(reservation_window)
+        time_entry = tk.OptionMenu(reservation_window, time_allocation, *reservation_time)
+        #table_entry.current(0)
         time_entry.grid(row=1, column=1)
 
         party_size_label = tk.Label(reservation_window, text="Party Size:")
         party_size_label.grid(row=2, column=0)
-        party_size_entry = ttk.Combobox(reservation_window,values=party_size)
-        table_entry.current(0)
+        party_size_selected = tk.StringVar(reservation_window)
+        party_size_entry = tk.OptionMenu(reservation_window, party_size_selected, *party_size)
+        #table_entry.current(0)
         party_size_entry.grid(row=2, column=1)
         
         party_name_label = tk.Label(reservation_window, text="Name")
@@ -194,8 +197,8 @@ class RestaurantApp:
         party_name_entry.grid(row=3, column=1)
         
         submit_button = tk.Button(reservation_window, text="Submit",
-                                  command=lambda: self.submit_reservation(reservation_window, table_entry.get(),
-                                                                          time_entry.get(), party_size_entry.get(),party_name_entry.get()))
+                                  command=lambda: self.submit_reservation(reservation_window, table_number.get(),
+                                                                          time_allocation.get(), party_size_selected.get(),party_name_entry.get()))
         submit_button.grid(row=4, columnspan=2)
 
     def view_reservations(self):
