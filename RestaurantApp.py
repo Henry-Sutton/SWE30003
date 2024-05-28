@@ -1,7 +1,9 @@
 import tkinter as tk
 import ttkbootstrap as ttk
-import Restaurant
-import MenuItem
+
+from MenuItem import MenuItem
+from Restaurant import Restaurant
+from Order import Order
 
 class RestaurantApp:
     def __init__(self, master, restaurant):
@@ -69,28 +71,26 @@ class RestaurantApp:
         create_order_window.title("Create Order")
         create_order_window.geometry("400x400")
 
+        label = ttk.Label(create_order_window, text="Table Number")
+        label.pack()
+        table_number = tk.IntVar()
+        optionMenu = ttk.OptionMenu(create_order_window, table_number, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+        optionMenu.pack()
+
         selected_items = []
 
         for item in self.menu_items:
-            Btn = ttk.Button(create_order_window, text=item[1], command=lambda: self.add_item_to_order(create_order_window, item[1]))
+            Btn = ttk.Button(create_order_window, text=item[1], command=lambda item=item: selected_items.append(item))
             Btn.pack(pady=10)
 
-        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(selected_items, create_order_window))
+        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(table_number.get(), selected_items))
         submit_button.pack()
 
-    def submit_order(self, selected_items, window):
-        selected_items = [item[1] for item in selected_items if item[0].get()]
-        if selected_items:
-            # Assuming table number and order type are selected elsewhere
-            table_number = 1  # Example table number
-            order_type = "Dine-in"  # Example order type
-            order = self.restaurant.create_order(table_number, order_type)
-            for item in selected_items:
-                order.add_item(MenuItem(item[1], item[2], item[3]))
-            tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}")
-            window.destroy()
-        else:
-            tk.messagebox.showwarning("No Items Selected", "Please select at least one item.")
+    def submit_order(self, table_number, selected_items):
+        order = self.restaurant.create_order(table_number, selected_items)
+        print(order.table_number, order.total, order.items)
+        tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}, for ${order.total}")
+            
 
     def open_view_order_window(self):
         view_order_window = tk.Toplevel(self.master)
@@ -111,7 +111,7 @@ class RestaurantApp:
         tk.Label(order_details_window, text=f"Order Type: {order.order_type}").pack()
         tk.Label(order_details_window, text="Items:").pack()
         for item in order.items:
-            tk.Label(order_details_window, text=f"{item.name} - ${item.price}").pack()
+            tk.Label(order_details_window, text=f"{item[1]} - ${item[2]}").pack()
         ttk.Button(order_details_window, text="Pay", command=lambda: self.pay_order(order)).pack()
 
     def pay_order(self, order):

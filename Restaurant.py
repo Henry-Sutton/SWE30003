@@ -1,5 +1,7 @@
-import Order
-
+from MenuItem import MenuItem
+from Order import Order
+from Reservation import Reservation
+from User import User
 
 class Restaurant:
     def __init__(self, c, conn):
