@@ -10,4 +10,4 @@ class Order:
         self.items.append(item)
 
     def calculate_total(self):
-        return sum(item[2] for item in self.items)
+        return sum(item[0][2] for item in self.items)

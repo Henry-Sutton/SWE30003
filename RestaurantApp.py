@@ -70,27 +70,61 @@ class RestaurantApp:
     def open_create_order_window(self):
         create_order_window = tk.Toplevel(self.master)
         create_order_window.title("Create Order")
-        create_order_window.geometry("400x400")
+        create_order_window.geometry("600x600")
 
+        # Table Number Label and OptionMenu
         label = ttk.Label(create_order_window, text="Table Number")
-        label.grid(col=0, row=1)
+        label.grid(column=0, row=0, padx=5, pady=5, sticky='w')
         table_number = tk.IntVar(create_order_window, 1)
-        optionMenu = tk.OptionMenu(create_order_window, table_number, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
-        optionMenu.grid(col=1, row=1)
+        optionMenu = tk.OptionMenu(create_order_window, table_number, *range(1, 16))
+        optionMenu.grid(column=1, row=0, padx=5, pady=5, sticky='w')
+
+        # Text box for notes
+        notes_label = ttk.Label(create_order_window, text="Notes")
+        notes_label.grid(column=0, row=1, padx=5, pady=5, sticky='w')
+        notes = tk.StringVar(create_order_window, "")
+        noteBox = ttk.Entry(create_order_window, textvariable=notes)
+        noteBox.grid(column=1, row=1, padx=5, pady=5, sticky='w')
+
+        # Frame to hold the selected items list
+        selected_frame = ttk.Frame(create_order_window)
+        selected_frame.grid(column=0, row=2, rowspan=3, padx=5, pady=5, sticky='nw')
 
         selected_items = []
 
-        for item in self.menu_items:
-            Btn = ttk.Button(create_order_window, text=item[1], command=lambda item=item: selected_items.append(item))
-            Btn.pack(pady=10)
+        selected_label = ttk.Label(selected_frame, text="Selected Items")
+        selected_label.pack(anchor='w')
 
-        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(table_number.get(), selected_items))
-        submit_button.pack()
+        selected_listbox = tk.Listbox(selected_frame, width=30)
+        selected_listbox.pack(anchor='w', fill=tk.BOTH, expand=True)
 
-    def submit_order(self, table_number, selected_items):
+        # Function to add selected item to the listbox
+        def add_item(item):
+            note = notes.get()
+            selected_items.append((item, note))
+            #print(selected_items)
+            selected_listbox.insert(tk.END, item[1])
+            if note:
+                selected_listbox.insert(tk.END, f"  ** {note}")
+            notes.set("")
+
+        # Buttons for menu items in a 3x2 grid
+        menu_frame = ttk.Frame(create_order_window)
+        menu_frame.grid(column=1, row=2, rowspan=3, padx=5, pady=5, sticky='nw')
+
+        for i, item in enumerate(self.menu_items):
+            Btn = ttk.Button(menu_frame, text=item[1], command=lambda item=item: add_item(item))
+            Btn.grid(column=i % 3, row=i // 3, padx=5, pady=5, sticky='w')
+
+        # Submit button
+        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(table_number.get(), selected_items, create_order_window))
+        submit_button.grid(column=0, row=5, columnspan=2, padx=5, pady=5)
+
+    def submit_order(self, table_number, selected_items, window):
         order = self.restaurant.create_order(table_number, selected_items)
         print(order.table_number, order.total, order.items)
         tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}, for ${order.total}")
+        window.destroy()
             
 
     def open_view_order_window(self):
