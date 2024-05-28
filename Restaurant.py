@@ -43,7 +43,8 @@ class Restaurant:
         self.c.execute("SELECT * FROM Users")
         return self.c.fetchall()
 
-    def add_payment(self, order_id, amount, payment_method):
+    def add_payment(self, order, amount, payment_method):
+        order_id = self.orders.index(order)
         self.c.execute("INSERT INTO Payments (order_id, amount, payment_method) VALUES (?, ?, ?)",
                   (order_id, amount, payment_method))
         self.conn.commit()

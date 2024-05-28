@@ -150,8 +150,7 @@ class RestaurantApp:
         ttk.Button(order_details_window, text="Pay", command=lambda: self.pay_order(order)).pack()
 
     def pay_order(self, order):
-        self.add_payment(order.id)
-
+        self.add_payment(order)
 
     def create_order(self):
         table_number = self.restaurant.assign_table()
@@ -271,21 +270,22 @@ class RestaurantApp:
         tk.messagebox.showinfo("User Added", "User added successfully!")
         window.destroy()
 
-    def add_payment(self, order_id):
+    def add_payment(self, order):
         add_payment_window = tk.Toplevel(self.master)
         add_payment_window.title("Add Payment")
 
         card_button = tk.Button(add_payment_window, text="Card", 
-                                command=lambda: self.submit_payment(add_payment_window, order_id, "card"))
+                                command=lambda: self.submit_payment(add_payment_window, order, "card"))
         card_button.grid(row=3, columnspan=1)
 
         cash_button = tk.Button(add_payment_window, text="Cash", 
-                                command=lambda: self.submit_payment(add_payment_window, order_id, "cash"))
+                                command=lambda: self.submit_payment(add_payment_window, order, "cash"))
         cash_button.grid(row=4, columnspan=1)
 
-    def submit_payment(self, window, order_id, method):
-        amount = self.restaurant.get_order_cost(order_id)
-        self.restaurant.add_payment(int(order_id) - 1, method)
+    def submit_payment(self, window, order, method):
+        #amount = self.restaurant.get_order_cost(order)
+        amount = order.total
+        self.restaurant.add_payment(order, amount, method)
         if (method.lower() == "card"):
             message = "Tap card when you're ready"
         elif (method.lower() == "cash"):
