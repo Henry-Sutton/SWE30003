@@ -283,7 +283,6 @@ class RestaurantApp:
         cash_button.grid(row=4, columnspan=1)
 
     def submit_payment(self, window, order, method):
-        #amount = self.restaurant.get_order_cost(order)
         amount = order.total
         self.restaurant.add_payment(order, amount, method)
         if (method.lower() == "card"):
