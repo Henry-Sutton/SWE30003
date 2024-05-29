@@ -1,7 +1,5 @@
-from MenuItem import MenuItem
-from Order import Order
-from Reservation import Reservation
-from User import User
+import Order
+
 
 class Restaurant:
     def __init__(self, c, conn):
@@ -15,9 +13,9 @@ class Restaurant:
         self.orders.append(order)
         return order
 
-    def create_reservation(self, table_number, reservation_time, party_size,name):
-        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size,name) VALUES (?, ?, ?,?)",
-                       (table_number, reservation_time, party_size,name))
+    def create_reservation(self, table_number, reservation_time, party_size):
+        self.c.execute("INSERT INTO Reservations (table_number, reservation_time, party_size) VALUES (?, ?, ?)",
+                       (table_number, reservation_time, party_size))
         self.conn.commit()
         return "Reservation created successfully"
 
