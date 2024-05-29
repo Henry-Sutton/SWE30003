@@ -18,8 +18,11 @@ class RestaurantApp:
         self.create_order_button = ttk.Button(master, text="Create Order", command=self.open_create_order_window)
         self.create_order_button.grid(row=1, column=0, padx=(10, 5), pady=(5, 5))
 
-        self.view_order_button = ttk.Button(master, text="View Order", command=self.open_view_order_window)
+        self.view_order_button = ttk.Button(master, text="View Orders", command=self.open_view_order_window)
         self.view_order_button.grid(row=2, column=0, padx=(10, 5), pady=(5, 5))
+
+        self.add_menu_item_button = ttk.Button(master, text="Add Menu Item", command=self.add_menu_item)
+        self.add_menu_item_button.grid(row=3, column=0, padx=(10, 5), pady=(5, 5))
 
         self.create_reservation_button = ttk.Button(master, text="Create Reservation", command=self.create_reservation)
         self.create_reservation_button.grid(row=8, column=0, padx=(10, 5), pady=(5, 5))
@@ -122,7 +125,7 @@ class RestaurantApp:
 
     def submit_order(self, table_number, selected_items, window):
         order = self.restaurant.create_order(table_number, selected_items)
-        print(order.table_number, order.total, order.items)
+        #print(order.table_number, order.total, order.items)
         tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}, for ${order.total}")
         window.destroy()
             
@@ -166,8 +169,8 @@ class RestaurantApp:
         reservation_window = tk.Toplevel(self.master)
         reservation_window.title("Create Reservation")
         table_numbers = ["1", "2", "3", "4"]
-        reservation_time = ["12:00", "12:30", "13:00", "13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30""18:00","18:30""19:00","19:30","20:00",
-                            "20:30""21:00","21:30"]
+        reservation_time = ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00",
+                            "20:30", "21:00", "21:30"]
         party_size = ["1","2","3","4","5","6","7","8","9+"]
         
         table_label = tk.Label(reservation_window, text="Table Number:")
@@ -223,6 +226,8 @@ class RestaurantApp:
         add_item_window = tk.Toplevel(self.master)
         add_item_window.title("Add Menu Item")
 
+        menu_options = ["Food", "Dessert", "Drink"]
+
         name_label = tk.Label(add_item_window, text="Name:")
         name_label.grid(row=0, column=0)
         name_entry = tk.Entry(add_item_window)
@@ -235,12 +240,15 @@ class RestaurantApp:
 
         type_label = tk.Label(add_item_window, text="Type:")
         type_label.grid(row=2, column=0)
-        type_entry = tk.Entry(add_item_window)
-        type_entry.grid(row=2, column=1)
+        item_type = tk.StringVar(add_item_window)
+        type_select = tk.OptionMenu(add_item_window, item_type, *menu_options)
+        type_select.grid(row=2, column=1)
+        #type_entry = tk.Entry(add_item_window)
+        #type_entry.grid(row=2, column=1)
     
         submit_button = tk.Button(add_item_window, text="Submit",
                                   command=lambda: self.submit_menu_item(add_item_window, name_entry.get(),
-                                                                       price_entry.get(), type_entry.get()))
+                                                                       price_entry.get(), item_type.get()))
         submit_button.grid(row=3, columnspan=2)
 
     def submit_menu_item(self, window, name, price, item_type):
