@@ -25,7 +25,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS OrderItems
             (id INTEGER PRIMARY KEY, order_id INTEGER, item_id INTEGER)''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Reservations
-            (id INTEGER PRIMARY KEY, table_number INTEGER, reservation_time TEXT, party_size INTEGER, name TEXT)''')
+            (id INTEGER PRIMARY KEY, table_number INTEGER, reservation_time TEXT, party_size INTEGER)''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Users
             (id INTEGER PRIMARY KEY, username TEXT, password TEXT)''')
@@ -33,10 +33,9 @@ c.execute('''CREATE TABLE IF NOT EXISTS Users
 c.execute('''CREATE TABLE IF NOT EXISTS Payments
             (id INTEGER PRIMARY KEY, order_id INTEGER, amount REAL, payment_method TEXT)''')
 
-
 if __name__ == "__main__":
     restaurant = Restaurant(c, conn)
-    root = ttk.window.Window(size=[800, 800])
+    root = ttk.window.Window(size=[640, 480])
     app = UserApp(root)
     root.mainloop()
 

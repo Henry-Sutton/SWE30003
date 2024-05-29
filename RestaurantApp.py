@@ -1,131 +1,72 @@
 import tkinter as tk
 import ttkbootstrap as ttk
-
-from MenuItem import MenuItem
-from Restaurant import Restaurant
-from Order import Order
+import Restaurant
+import MenuItem
 
 class RestaurantApp:
     def __init__(self, master, restaurant):
         self.master = master
         self.restaurant = restaurant
-        master.minsize(800, 400)
         master.title("Restaurant Management System")
 
         self.label = ttk.Label(master, text="Welcome to Relaxing Koala Restaurant!")
-        self.label.grid(row=0, column=0, columnspan=4, padx=(10, 10), pady=(10, 10))  # Adjust columnspan as needed
+        self.label.grid(row=0, column=0, columnspan=3) #6 x 4
+
+        #self.table_frame = tk.Frame(master)
+        #self.table_frame.pack()
 
         self.create_order_button = ttk.Button(master, text="Create Order", command=self.open_create_order_window)
-        self.create_order_button.grid(row=1, column=0, padx=(10, 5), pady=(5, 5))
+        self.create_order_button.grid(row=1, column=0)
 
         self.view_order_button = ttk.Button(master, text="View Order", command=self.open_view_order_window)
-        self.view_order_button.grid(row=2, column=0, padx=(10, 5), pady=(5, 5))
+        self.view_order_button.grid(row=2, column=0)
 
         self.create_reservation_button = ttk.Button(master, text="Create Reservation", command=self.create_reservation)
-        self.create_reservation_button.grid(row=8, column=0, padx=(10, 5), pady=(5, 5))
+        self.create_reservation_button.grid(row=6, column=3)
 
         self.menu_items = self.restaurant.get_menu_items()
 
-        # Set up the Treeview for reservations
-        self.setup_reservation_treeview()
-
-        # Fetch and display the initial reservations
         self.update_reservations()
 
-    def setup_reservation_treeview(self):
-        # Create a Treeview widget
-        self.tree = ttk.Treeview(self.master, columns=("Reservation", "Table Number", "Reservation Time", "Party Size","Name"), show="headings")
-        self.tree.grid(row=1, column=1, rowspan=7, columnspan=5, padx=(20, 10), pady=(10, 10), sticky='nsew')
-
-        # Define the column headers
-        self.tree.heading("Reservation", text="Reservation")
-        self.tree.heading("Table Number", text="Table Number")
-        self.tree.heading("Reservation Time", text="Reservation Time")
-        self.tree.heading("Party Size", text="Party Size")
-        self.tree.heading("Name", text="Name")
-
-        # Define the column widths
-        self.tree.column("Reservation", width=100)
-        self.tree.column("Table Number", width=100)
-        self.tree.column("Reservation Time", width=150)
-        self.tree.column("Party Size", width=100)
-        self.tree.column("Name", width = 100)
-
-        # Add a scrollbar
-        self.scrollbar = ttk.Scrollbar(self.master, orient=tk.VERTICAL, command=self.tree.yview)
-        self.tree.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.grid(row=1, column=8, rowspan=7, sticky='ns', pady=(10, 10))
-
     def update_reservations(self):
-        # Clear the current contents of the Treeview
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        self.reservations_list = tk.Listbox(self.master)
+        self.reservations_list.grid(row=1, column=3, rowspan=5)
 
-        # Fetch and insert new reservations
+        self.reservation_scrollbar = tk.Scrollbar(self.master)
         reservations = self.restaurant.get_reservations()
-        for reservation in reservations:
-            self.tree.insert("", "end", values=reservation)
 
+        for r in reservations:
+            self.reservations_list.insert("end", r)
+
+        self.reservations_list.config(yscrollcommand = self.reservation_scrollbar.set) 
 
     def open_create_order_window(self):
         create_order_window = tk.Toplevel(self.master)
         create_order_window.title("Create Order")
-        create_order_window.geometry("600x600")
-
-        # Table Number Label and OptionMenu
-        label = ttk.Label(create_order_window, text="Table Number")
-        label.grid(column=0, row=0, padx=5, pady=5, sticky='w')
-        table_number = tk.IntVar(create_order_window, 1)
-        optionMenu = tk.OptionMenu(create_order_window, table_number, *range(1, 16))
-        optionMenu.grid(column=1, row=0, padx=5, pady=5, sticky='w')
-
-        # Text box for notes
-        notes_label = ttk.Label(create_order_window, text="Notes")
-        notes_label.grid(column=0, row=1, padx=5, pady=5, sticky='w')
-        notes = tk.StringVar(create_order_window, "")
-        noteBox = ttk.Entry(create_order_window, textvariable=notes)
-        noteBox.grid(column=1, row=1, padx=5, pady=5, sticky='w')
-
-        # Frame to hold the selected items list
-        selected_frame = ttk.Frame(create_order_window)
-        selected_frame.grid(column=0, row=2, rowspan=3, padx=5, pady=5, sticky='nw')
+        create_order_window.geometry("400x400")
 
         selected_items = []
 
-        selected_label = ttk.Label(selected_frame, text="Selected Items")
-        selected_label.pack(anchor='w')
+        for item in self.menu_items:
+            Btn = ttk.Button(create_order_window, text=item[1], command=lambda: self.add_item_to_order(create_order_window, item[1]))
+            Btn.pack(pady=10)
 
-        selected_listbox = tk.Listbox(selected_frame, width=30)
-        selected_listbox.pack(anchor='w', fill=tk.BOTH, expand=True)
+        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(selected_items, create_order_window))
+        submit_button.pack()
 
-        # Function to add selected item to the listbox
-        def add_item(item):
-            note = notes.get()
-            selected_items.append((item, note))
-            #print(selected_items)
-            selected_listbox.insert(tk.END, item[1])
-            if note:
-                selected_listbox.insert(tk.END, f"  ** {note}")
-            notes.set("")
-
-        # Buttons for menu items in a 3x2 grid
-        menu_frame = ttk.Frame(create_order_window)
-        menu_frame.grid(column=1, row=2, rowspan=3, padx=5, pady=5, sticky='nw')
-
-        for i, item in enumerate(self.menu_items):
-            Btn = ttk.Button(menu_frame, text=item[1], command=lambda item=item: add_item(item))
-            Btn.grid(column=i % 3, row=i // 3, padx=5, pady=5, sticky='w')
-
-        # Submit button
-        submit_button = ttk.Button(create_order_window, text="Submit", command=lambda: self.submit_order(table_number.get(), selected_items, create_order_window))
-        submit_button.grid(column=0, row=5, columnspan=2, padx=5, pady=5)
-
-    def submit_order(self, table_number, selected_items, window):
-        order = self.restaurant.create_order(table_number, selected_items)
-        print(order.table_number, order.total, order.items)
-        tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}, for ${order.total}")
-        window.destroy()
-            
+    def submit_order(self, selected_items, window):
+        selected_items = [item[1] for item in selected_items if item[0].get()]
+        if selected_items:
+            # Assuming table number and order type are selected elsewhere
+            table_number = 1  # Example table number
+            order_type = "Dine-in"  # Example order type
+            order = self.restaurant.create_order(table_number, order_type)
+            for item in selected_items:
+                order.add_item(MenuItem(item[1], item[2], item[3]))
+            tk.messagebox.showinfo("Order Created", f"Order created for Table {table_number}")
+            window.destroy()
+        else:
+            tk.messagebox.showwarning("No Items Selected", "Please select at least one item.")
 
     def open_view_order_window(self):
         view_order_window = tk.Toplevel(self.master)
@@ -146,7 +87,7 @@ class RestaurantApp:
         tk.Label(order_details_window, text=f"Order Type: {order.order_type}").pack()
         tk.Label(order_details_window, text="Items:").pack()
         for item in order.items:
-            tk.Label(order_details_window, text=f"{item[0][1]} - ${item[0][2]}").pack()
+            tk.Label(order_details_window, text=f"{item.name} - ${item.price}").pack()
         ttk.Button(order_details_window, text="Pay", command=lambda: self.pay_order(order)).pack()
 
     def pay_order(self, order):
@@ -163,41 +104,26 @@ class RestaurantApp:
     def create_reservation(self):
         reservation_window = tk.Toplevel(self.master)
         reservation_window.title("Create Reservation")
-        table_numbers = ["1", "2", "3", "4"]
-        reservation_time = ["12:00", "12:30", "13:00", "13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30""18:00","18:30""19:00","19:30","20:00",
-                            "20:30""21:00","21:30"]
-        party_size = ["1","2","3","4","5","6","7","8","9+"]
-        
+
         table_label = tk.Label(reservation_window, text="Table Number:")
         table_label.grid(row=0, column=0)
-        table_number = tk.StringVar(reservation_window)
-        table_entry = tk.OptionMenu(reservation_window, table_number, *table_numbers)
-        #table_entry.current(0)
+        table_entry = tk.Entry(reservation_window)
         table_entry.grid(row=0, column=1)
 
         time_label = tk.Label(reservation_window, text="Reservation Time:")
         time_label.grid(row=1, column=0)
-        time_allocation = tk.StringVar(reservation_window)
-        time_entry = tk.OptionMenu(reservation_window, time_allocation, *reservation_time)
-        #table_entry.current(0)
+        time_entry = tk.Entry(reservation_window)
         time_entry.grid(row=1, column=1)
 
         party_size_label = tk.Label(reservation_window, text="Party Size:")
         party_size_label.grid(row=2, column=0)
-        party_size_selected = tk.StringVar(reservation_window)
-        party_size_entry = tk.OptionMenu(reservation_window, party_size_selected, *party_size)
-        #table_entry.current(0)
+        party_size_entry = tk.Entry(reservation_window)
         party_size_entry.grid(row=2, column=1)
-        
-        party_name_label = tk.Label(reservation_window, text="Name")
-        party_name_label.grid(row=3, column=0)
-        party_name_entry = tk.Entry(reservation_window)
-        party_name_entry.grid(row=3, column=1)
-        
+
         submit_button = tk.Button(reservation_window, text="Submit",
-                                  command=lambda: self.submit_reservation(reservation_window, table_number.get(),
-                                                                          time_allocation.get(), party_size_selected.get(),party_name_entry.get()))
-        submit_button.grid(row=4, columnspan=2)
+                                  command=lambda: self.submit_reservation(reservation_window, table_entry.get(),
+                                                                          time_entry.get(), party_size_entry.get()))
+        submit_button.grid(row=3, columnspan=2)
 
     def view_reservations(self):
         reservations = self.restaurant.get_reservations()
@@ -211,8 +137,8 @@ class RestaurantApp:
         else:
             tk.messagebox.showinfo("No Reservations", "There are no reservations.")
 
-    def submit_reservation(self, window, table_number, reservation_time, party_size,name):
-        self.restaurant.create_reservation(int(table_number), reservation_time, int(party_size),name)
+    def submit_reservation(self, window, table_number, reservation_time, party_size):
+        self.restaurant.create_reservation(int(table_number), reservation_time, int(party_size))
         tk.messagebox.showinfo("Reservation Created", "Reservation created successfully!")
         self.update_reservations()
         window.destroy()
@@ -235,7 +161,7 @@ class RestaurantApp:
         type_label.grid(row=2, column=0)
         type_entry = tk.Entry(add_item_window)
         type_entry.grid(row=2, column=1)
-    
+
         submit_button = tk.Button(add_item_window, text="Submit",
                                   command=lambda: self.submit_menu_item(add_item_window, name_entry.get(),
                                                                        price_entry.get(), type_entry.get()))
