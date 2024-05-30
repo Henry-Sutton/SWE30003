@@ -55,6 +55,7 @@ class Restaurant:
             method = Cash(amount)
         else:
             method = Card(amount)
+        self.orders.pop(order_id)
         return Payment(order_id, method)
     
     def get_reservations(self):
