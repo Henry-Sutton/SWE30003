@@ -292,11 +292,7 @@ class RestaurantApp:
 
     def submit_payment(self, window, order, method):
         amount = order.total
-        self.restaurant.add_payment(order, amount, method)
-        if (method.lower() == "card"):
-            message = "Tap card when you're ready"
-        elif (method.lower() == "cash"):
-            message = "Hand owed cash to staff"
-        tk.messagebox.showinfo("Payment Window", f"{message}: Amount owed is ${amount}")
-        
+        payment = self.restaurant.add_payment(order, amount, method)
+        message = payment.make_payment()
+        tk.messagebox.showinfo("Payment Window", message)
         window.destroy()

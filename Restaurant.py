@@ -2,6 +2,9 @@ from MenuItem import MenuItem
 from Order import Order
 from Reservation import Reservation
 from User import User
+from Payment import Payment
+from Cash import Cash
+from Card import Card
 
 class Restaurant:
     def __init__(self, c, conn):
@@ -48,9 +51,14 @@ class Restaurant:
         self.c.execute("INSERT INTO Payments (order_id, amount, payment_method) VALUES (?, ?, ?)",
                   (order_id, amount, payment_method))
         self.conn.commit()
+        if (payment_method == "cash"):
+            method = Cash(amount)
+        else:
+            method = Card(amount)
+        return Payment(order_id, method)
     
     def get_reservations(self):
         self.c.execute("SELECT * FROM Reservations")
         reservations = self.c.fetchall()
-        print("Reservations:", reservations)  # Add this line for debugging
+        #print("Reservations:", reservations)  # Add this line for debugging
         return reservations
