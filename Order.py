@@ -1,7 +1,7 @@
 class Order:
-    def __init__(self, table_number, selected_items):
+    def __init__(self, table_number, order_type, selected_items):
         self.table_number = table_number
-        self.order_type = 'Dine-in'
+        self.order_type = order_type
         self.status = 'Pending'
         self.items = selected_items
         self.total = self.calculate_total()

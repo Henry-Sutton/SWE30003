@@ -13,8 +13,8 @@ class Restaurant:
         self.c = c 
         self.conn = conn
 
-    def create_order(self, table_number, order_type):
-        order = Order(table_number, order_type)
+    def create_order(self, table_number, order_type, selected_items):
+        order = Order(table_number, order_type, selected_items)
         self.orders.append(order)
         return order
 
