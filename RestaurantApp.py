@@ -213,10 +213,10 @@ class RestaurantApp:
         if not customer_name:
             tk.messagebox.showerror("Error", "Customer name is required for delivery.")
             return
-        if not re.match(phone_regex, phone_number):
+        if not tk.re.match(phone_regex, phone_number):
             tk.messagebox.showerror("Error", "Invalid phone number format.")
             return
-        if not re.match(address_regex, delivery_address):
+        if not tk.re.match(address_regex, delivery_address):
             tk.messagebox.showerror("Error", "Invalid address format.")
             return
 
